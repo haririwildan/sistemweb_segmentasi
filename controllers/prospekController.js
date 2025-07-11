@@ -1,7 +1,6 @@
+const axios = require('axios');
 const Prospek = require('../models/Prospek');
 const ClusterResult = require('../models/HasilCluster');
-const { spawn } = require('child_process');
-const path = require('path');
 
 exports.index = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -25,12 +24,6 @@ exports.index = async (req, res) => {
 
 exports.cluster = async (req, res) => {
     try {
-        res.set({
-            'Cache-Control': 'no-store, no-cache, must-revalidate, private',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-            'Vary': '*'
-        });
         const docs = await Prospek.find().sort({ createdAt: 1 });
 
         if (docs.length < 3) {
@@ -40,7 +33,6 @@ exports.cluster = async (req, res) => {
             });
         }
 
-        // Data untuk Python
         const input = docs.map(d => ({
             nama_am: d.nama_am,
             customer: d.customer,
@@ -50,68 +42,24 @@ exports.cluster = async (req, res) => {
             portofolio: d.portofolio
         }));
 
-        const script = path.join(__dirname, '..', 'python', 'kproto.py');
-        const python = spawn('python', [script]);
+        // 🔗 Kirim data ke Flask
+        const response = await axios.post('http://127.0.0.1:5000/cluster', { data: input });
 
-        python.stdin.write(JSON.stringify(input), () => {
-            python.stdin.end();
-        });
+        const { data: clusters, silhouette_score, k_terbaik } = response.data;
 
-        let out = '', err = '';
+        if (!Array.isArray(clusters)) {
+            throw new Error('Output "data" bukan array');
+        }
 
-        python.stdout.on('data', chunk => out += chunk.toString());
-        python.stderr.on('data', chunk => err += chunk.toString());
+        await ClusterResult.deleteMany();
+        await ClusterResult.insertMany(clusters);
 
-        python.on('close', async () => {
-            if (!out.trim()) {
-                console.error('❌ Output Python kosong!');
-                console.error('stderr:', err);
-                return res.render('result', {
-                    clusters: [],
-                    message: 'Tidak ada output dari Python. Periksa script kproto.py.'
-                });
-            }
-
-            if (err.includes('Error:')) {
-                console.error('❌ Python Error:\n', err);
-                return res.render('result', {
-                    clusters: [],
-                    message: 'Terjadi kesalahan saat menjalankan Python.'
-                });
-            }
-
-            try {
-                const parsed = JSON.parse(out);
-                const clusters = parsed.data;
-                const silhouetteScore = parsed.silhouette_score;
-                const bestK = parsed.k_terbaik;
-
-                if (!Array.isArray(clusters)) {
-                    throw new Error('Output "data" bukan array');
-                }
-
-                await ClusterResult.deleteMany();
-                await ClusterResult.insertMany(clusters);
-
-                console.log(`✅ [CLUSTERING SELESAI] Jumlah data: ${clusters.length}`);
-                console.log('📋 Cluster unik:', [...new Set(clusters.map(c => c.cluster))]);
-
-                return processAndRenderClusters(clusters, docs, res, false, silhouetteScore, bestK);
-            } catch (e) {
-                console.error('❌ Gagal parsing output Python:', e.message);
-                console.error('Output mentah:', out);
-                return res.render('result', {
-                    clusters: [],
-                    message: 'Output Python tidak valid.'
-                });
-            }
-        });
-
+        return processAndRenderClusters(clusters, docs, res, false, silhouette_score, k_terbaik);
     } catch (e) {
-        console.error('❌ Server error:', e);
-        res.render('result', {
+        console.error('❌ Gagal cluster:', e.message);
+        return res.render('result', {
             clusters: [],
-            message: 'Kesalahan server.'
+            message: 'Gagal melakukan clustering. Cek koneksi ke Python server.'
         });
     }
 };
@@ -180,9 +128,9 @@ exports.showClusterResult = async (req, res) => {
         }
 
         res.render('result', {
-            clusters,
-            autoSummary,
-            finalConclusion
+            title: 'Hasil Segmentasi Prospek',
+            clusters: clusters,
+            message: null // atau bisa string kosong ""
         });
     } catch (e) {
         console.error('Error showing cluster result:', e);
@@ -321,46 +269,68 @@ exports.saveProspek = async (req, res) => {
 };
 
 exports.detailCluster = async (req, res) => {
-    res.set({
-        'Cache-Control': 'no-store, no-cache, must-revalidate, private',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'Vary': '*'
-    });
-
-    const clusterId = parseInt(req.params.id);
-
     try {
-        const clusters = await ClusterResult.find({ cluster: clusterId });
-
-        if (clusters.length === 0) {
-            return res.render('detailCluster', {
-                clusterId,
-                pelanggan: [],
-                label: 'Tidak ditemukan',
-                message: 'Tidak ada data pada cluster ini.'
+        const clusterId = parseInt(req.params.id);
+        if (isNaN(clusterId)) {
+            return res.status(400).render('result', {
+                clusters: [],
+                message: 'ID cluster tidak valid.'
             });
         }
 
-        const label = clusters[0].deskripsi_cluster || 'Tanpa Label';
+        // Ambil semua data hasil clustering dari database berdasarkan ID cluster
+        const clusterMembers = await ClusterResult.find({ cluster: clusterId });
 
-        res.render('detailCluster', {
+        if (!clusterMembers.length) {
+            return res.render('result', {
+                clusters: [],
+                message: `Tidak ditemukan data untuk cluster ID ${clusterId}.`
+            });
+        }
+
+        // Hitung ringkasan
+        const totalSales = clusterMembers.reduce((sum, item) => sum + parseFloat(item.sales_amount || 0), 0);
+        const avgSales = totalSales / clusterMembers.length;
+        const dominanStage = getMostFrequent(clusterMembers.map(m => m.stage));
+        const dominanPortofolio = getMostFrequent(clusterMembers.map(m => m.portofolio));
+        const deskripsiCluster = clusterMembers[0].deskripsi_cluster || '-';
+        const strategi = clusterMembers[0].strategi || '-';
+
+        res.render('cluster-detail', {
             clusterId,
-            pelanggan: clusters,
-            label,
+            members: clusterMembers,
+            summary: {
+                jumlah: clusterMembers.length,
+                rataRataSales: avgSales.toFixed(2),
+                stageDominan: dominanStage,
+                portofolioDominan: dominanPortofolio,
+                deskripsi: deskripsiCluster,
+                strategi
+            },
+            label: deskripsiCluster, // ✅ Tambahkan ini
+            pelanggan: clusterMembers, // ✅ Tambahkan ini juga
             message: null
         });
-
-    } catch (e) {
-        console.error('❌ Gagal menampilkan detail cluster:', e);
-        res.render('detailCluster', {
-            clusterId,
-            pelanggan: [],
-            label: 'Error',
-            message: 'Terjadi kesalahan saat memuat data.'
+    } catch (err) {
+        console.error('❌ Gagal mengambil detail cluster:', err);
+        res.status(500).render('result', {
+            clusters: [],
+            message: 'Terjadi kesalahan saat memuat detail cluster.'
         });
     }
 };
+
+// Fungsi bantu: Menghitung item yang paling sering muncul
+function getMostFrequent(arr) {
+    return arr.reduce((acc, curr) => {
+        acc.freq[curr] = (acc.freq[curr] || 0) + 1;
+        if (acc.freq[curr] > acc.maxFreq) {
+            acc.maxFreq = acc.freq[curr];
+            acc.value = curr;
+        }
+        return acc;
+    }, { freq: {}, maxFreq: 0, value: '-' }).value;
+}
 
 exports.editForm = async (req, res) => {
     try {
