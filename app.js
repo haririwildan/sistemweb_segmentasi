@@ -12,6 +12,8 @@ mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Koneksi ke MongoDB berhasil'))
     .catch((err) => console.error(err));
 
+app.set('trust proxy', 1); // Tambahkan ini di atas session()
+
 // Session Configuration
 app.use(session({
     secret: process.env.SESSION_SECRET || 'rahasiaWildan123',
@@ -24,8 +26,8 @@ app.use(session({
     cookie: {
         maxAge: 24 * 60 * 60 * 1000, // 1 hari
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        secure: true,
+        sameSite: 'lax'
     },
     rolling: true
 }));
