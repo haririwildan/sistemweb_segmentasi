@@ -97,6 +97,8 @@ exports.postLogin = async (req, res) => {
 
                 // Redirect ke halaman asal atau home
                 const redirectTo = req.query.redirect || '/';
+                console.log('User berhasil login:', user.username);
+                console.log('Session userId:', req.session.userId);
                 res.redirect(redirectTo);
             });
         });
