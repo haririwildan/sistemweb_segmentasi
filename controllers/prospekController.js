@@ -125,17 +125,15 @@ exports.showClusterResult = async (req, res) => {
             'Vary': '*'
         });
 
-        // Ambil semua hasil cluster dari DB
-        const ClusterResult = await ClusterResult.find();
+        const results = await ClusterResult.find();
         const docs = await Prospek.find().sort({ createdAt: 1 });
 
-        if (!ClusterResult.length) {
+        if (!results.length) {
             return res.redirect('/cluster');
         }
 
-        // Proses agregasi manual per cluster
         const clusterGroups = {};
-        ClusterResult.forEach(doc => {
+        results.forEach(doc => {
             const key = doc.cluster;
             if (!clusterGroups[key]) {
                 clusterGroups[key] = {
@@ -150,12 +148,10 @@ exports.showClusterResult = async (req, res) => {
             clusterGroups[key].jumlah += 1;
             clusterGroups[key].totalSales += doc.sales_amount;
 
-            // Hitung stage dominan
             const stage = doc.stage;
             clusterGroups[key].stageCounts[stage] = (clusterGroups[key].stageCounts[stage] || 0) + 1;
         });
 
-        // Format hasil cluster
         const clusters = Object.values(clusterGroups).map(cluster => {
             const stage_dominan = Object.entries(cluster.stageCounts).sort((a, b) => b[1] - a[1])[0][0];
             return {
@@ -167,16 +163,13 @@ exports.showClusterResult = async (req, res) => {
             };
         });
 
-        // Hitung total prospek
-        const totalProspek = ClusterResult.length;
+        const totalProspek = results.length;
 
-        // Narasi otomatis
         let autoSummary = `Dari total ${totalProspek} prospek yang dianalisis, sistem membagi mereka ke dalam ${clusters.length} segmen. `;
         clusters.forEach(cluster => {
             autoSummary += `Cluster ${cluster.cluster} merupakan segmen dengan ${cluster.deskripsi.toLowerCase()}, terdiri dari ${cluster.jumlah} prospek, rata-rata sales mencapai Rp ${cluster.rata_rata_sales.toLocaleString()}, dan dominan berada pada tahap ${cluster.stage_dominan}. `;
         });
 
-        // Kesimpulan otomatis
         const sortedClusters = [...clusters].sort((a, b) => b.rata_rata_sales - a.rata_rata_sales);
         let finalConclusion = `Berdasarkan segmentasi, tim sales dapat memfokuskan upaya lebih besar pada Cluster ${sortedClusters[0].cluster} untuk mempercepat konversi. `;
         if (sortedClusters[1]) {
