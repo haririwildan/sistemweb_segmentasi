@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 const layout = require('express-ejs-layouts');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
@@ -75,8 +76,9 @@ const backNavigation = require('./middlewares/backNavigation');
 app.use(backNavigation);
 
 // View engine setup
-app.set('view engine', 'ejs');
 app.use(layout);
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
