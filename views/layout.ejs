@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="/css/output.css">
+    <title>Sistem Website Skripsi</title>
+    <% if (session.userId) { %>
+        <script>
+            // Handle navigasi umum
+            document.addEventListener('DOMContentLoaded', function () {
+                // Deteksi jika halaman di-load dari cache
+                window.addEventListener('pageshow', function (event) {
+                    if (event.persisted) {
+                        window.location.reload();
+                    }
+                });
+
+                // Atur initial state
+                if (window.location.pathname === '/cluster') {
+                    history.replaceState({ isClusterPage: true }, '');
+                }
+            });
+
+            // Navigasi khusus untuk detail cluster
+            window.addEventListener('popstate', function (event) {
+                if (window.location.pathname.includes('/cluster/')) {
+                    // Jika kembali ke detail cluster, simpan state
+                    history.replaceState({ fromDetail: true }, '');
+                }
+            });
+        </script>
+        <% } %>
+</head>
+
+<body class="bg-gray-100">
+    <div>
+        <%- body %>
+    </div>
+</body>
+
+</html>

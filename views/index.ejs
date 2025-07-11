@@ -1,0 +1,117 @@
+<%- include('partials/header') %>
+
+<div class="container mx-auto p-6 rounded-2xl bg-white shadow-[0px_0px_16px_0px_rgba(0,0,0,0.16)]">
+    <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-3xl font-bold">
+            Sales Plan
+        </h1>
+
+        <div class="flex justify-between gap-2">
+            <form action="/cluster" method="POST">
+                <button type="submit" class="flex items-center gap-2 border border-[#ADACAC] text-[#595959] p-2 rounded-lg hover:bg-gray-100 transition duration-200">
+                    <img src="/images/Icon Segmentasi.png" alt="Icon Segmentasi" class="h-5 w-5">
+                    <span class="text-base font-medium">Segmentasi</span>
+                </button>            
+            </form>
+
+            <form action="/input" method="GET">
+                <button class="flex items-center gap-2 bg-[#40C2BA] text-white p-2 rounded-lg hover:bg-[#2C928B] transition duration-200">
+                    <img src="/images/Plus.png" alt="Icon Segmentasi" class="h-5 w-5">
+                    <span class="text-base font-medium">Input Data</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="overflow-hidden rounded-xl border border-gray-300 mt-6">
+        <table class="w-full border border-collapse">
+            <thead>
+                <tr class="bg-[#F4F8F9]">
+                    <th class="border border-gray-300 px-3 py-2">Nama AM</th>
+                    <th class="border border-gray-300 px-3 py-2">Customer</th>
+                    <th class="border border-gray-300 px-3 py-2">Pekerjaan</th>
+                    <th class="border border-gray-300 px-3 py-2">Portofolio</th>
+                    <th class="border border-gray-300 px-3 py-2">Sales Amount</th>
+                    <th class="border border-gray-300 px-3 py-2">Stage</th>
+                </tr>
+            </thead>
+            <tbody id="data-table-body">
+                <% data.forEach(d => { %>
+                    <tr class="hover:bg-gray-50 cursor-pointer" onclick="toggleAction('<%= d._id %>')">
+                        <td class="border p-1 border-gray-300 px-3 py-2"><%= d.nama_am %></td>
+                        <td class="border p-1 border-gray-300 px-3 py-2"><%= d.customer %></td>
+                        <td class="border p-1 border-gray-300 px-3 py-2"><%= d.pekerjaan %></td>
+                        <td class="border p-1 border-gray-300 px-3 py-2 text-center"><%= d.portofolio %></td>
+                        <td class="border p-1 border-gray-300 px-3 py-2">
+                        <%= Number(d.sales_amount).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }) %>
+                        </td>
+                        <td class="border p-1 border-gray-300 px-3 py-2"><%= d.stage %></td>
+                    </tr>
+                    <!-- Action Row -->
+                    <tr id="action-<%= d._id %>" class="hidden">
+                        <td colspan="6" class="px-3 py-2 border-t border-gray-200">
+                            <div class="flex justify-end gap-2">
+                                <form action="/edit/<%= d._id %>" method="get">
+                                    <button type="submit" class="px-3 py-1 border border-[#ADACAC] text-[#595959] rounded-md text-base font-medium hover:bg-gray-100 transition duration-200">
+                                        Edit
+                                    </button>
+                                </form>
+                                <form action="/delete/<%= d._id %>" method="post" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                    <button type="submit" class="px-3 py-1 bg-[#D2042D] text-white rounded-md text-base font-medium hover:bg-[#880808] transition duration-200">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="flex justify-end items-center gap-1 mt-4 text-sm">
+    <% if (totalPages > 1) { %>
+        <!-- Tombol Sebelumnya -->
+        <% if (currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>" 
+                class="w-8 h-8 flex items-center justify-center rounded-full hover:border hover:border-gray-300 hover:bg-gray-100 transition">
+                &lt;
+            </a>
+        <% } %>
+
+        <!-- Nomor Halaman -->
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>" 
+                class="w-8 h-8 flex items-center justify-center rounded-full transition
+                <%= currentPage === i 
+                ? 'bg-[#40C2BA] text-white font-semibold' 
+                : 'hover:border hover:border-gray-300 hover:bg-gray-100' %>">
+                <%= i %>
+            </a>
+        <% } %>
+
+        <!-- Tombol Berikutnya -->
+        <% if (currentPage < totalPages) { %>
+            <a href="?page=<%= currentPage + 1 %>" 
+                class="w-8 h-8 flex items-center justify-center rounded-full hover:border hover:border-gray-300 hover:bg-gray-100 transition">
+                &gt;
+            </a>
+        <% } %>
+    <% } %>
+</div>
+
+</div>
+
+<%- include('partials/footer') %>
+
+<script>
+    function toggleAction(id) {
+        // Sembunyikan semua baris action dulu
+        document.querySelectorAll('tr[id^="action-"]').forEach(row => {
+            if (row.id !== 'action-' + id) row.classList.add('hidden');
+        });
+
+        const row = document.getElementById('action-' + id);
+        row.classList.toggle('hidden');
+    }
+</script>

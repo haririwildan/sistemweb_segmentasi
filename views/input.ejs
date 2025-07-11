@@ -1,0 +1,71 @@
+<%- include('partials/header') %>
+
+<div class="container mx-auto p-6 rounded-2xl bg-white shadow-[0px_0px_16px_0px_rgba(0,0,0,0.16)]">
+    <h1 class="text-3xl font-bold mb-12">Input Data Sales Opportunity</h1>
+    
+    <form action="/input" method="POST" class="space-y-4">
+        <!-- Baris 1: Nama AM & Customer -->
+        <div class="flex flex-col md:flex-row md:justify-between gap-10">
+            <div class="md:w-1/2 w-full">
+                <label class="block text-[#595959] font-medium mb-2">Nama AM</label>
+                <input type="text" name="nama_am" placeholder="Masukkan Nama AM" required
+                    class="w-full border border-[#ADACAC] px-3 py-2 rounded-lg focus:ring-1 focus:ring-[#40C2BA] focus:outline-none transition duration-500" />
+            </div>
+
+            <div class="md:w-1/2 w-full">
+                <label class="block text-[#595959] font-medium mb-2">Nama Customer</label>
+                <input type="text" name="customer" placeholder="Masukkan Nama Customer" required
+                    class="w-full border border-[#ADACAC] px-3 py-2 rounded-lg focus:ring-1 focus:ring-[#40C2BA] focus:outline-none transition duration-500" />
+            </div>
+        </div>
+
+        <!-- Baris 2: Nama Pekerjaan & Portofolio -->
+        <div class="flex flex-col md:flex-row md:justify-between gap-10">
+            <div class="md:w-1/2 w-full">
+                <label class="block text-[#595959] font-medium mb-2">Nama Pekerjaan</label>
+                <input type="text" name="pekerjaan" placeholder="Masukkan Nama Pekerjaan" required
+                    class="w-full border border-[#ADACAC] px-3 py-2 rounded-lg focus:ring-1 focus:ring-[#40C2BA] focus:outline-none transition duration-500" />
+            </div>
+
+            <div class="md:w-1/2 w-full">
+                <label class="block text-[#595959] font-medium mb-2">Portofolio</label>
+                <select name="portofolio" required
+                    class="w-full text-[#595959] border border-[#ADACAC] px-3 py-2 rounded-lg focus:ring-1 focus:ring-[#40C2BA] focus:outline-none transition duration-500">
+                    <option value="">-- Pilih Portofolio --</option>
+                    <option value="PD">PD</option>
+                    <option value="PM">PM</option>
+                    <option value="PS">PS</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Baris 3: Sales Amount & Stage -->
+        <div class="flex flex-col md:flex-row md:justify-between gap-10">
+            <div class="md:w-1/2 w-full">
+                <label class="block text-[#595959] font-medium mb-2">Sales Amount (IDR)</label>
+                <input type="number" name="sales_amount" step="0.01" placeholder="Masukkan Sales Amount" required
+                    class="w-full border border-[#ADACAC] px-3 py-2 rounded-lg focus:ring-1 focus:ring-[#40C2BA] focus:outline-none transition duration-500" />
+            </div>
+
+            <div class="md:w-1/2 w-full">
+                <label class="block text-[#595959] font-medium mb-2">Stage</label>
+                <select name="stage" required
+                    class="w-full text-[#595959] border border-[#ADACAC] px-3 py-2 rounded-lg focus:ring-1 focus:ring-[#40C2BA] focus:outline-none transition duration-500">
+                    <option value="">-- Pilih Stage --</option>
+                    <option value="Inisiasi">Inisiasi</option>
+                    <option value="SPH">SPH</option>
+                    <option value="Negosiasi">Negosiasi</option>
+                    <option value="BAKN">BAKN</option>
+                    <option value="Win">Win</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-2 mt-6">
+            <a href="/" class="text-base font-medium border border-[#ADACAC] text-[#595959] hover:bg-gray-200 px-4 py-2 rounded-xl transition duration-200">Batal</a>
+            <button type="submit" class="text-base font-medium bg-[#40C2BA] text-white px-4 py-2 rounded-xl hover:bg-[#2C928B] transition duration-200">Simpan</button>
+        </div>
+    </form>
+</div>
+
+<%- include('partials/footer') %>

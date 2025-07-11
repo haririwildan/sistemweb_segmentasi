@@ -1,0 +1,224 @@
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white px-8 py-8 rounded-2xl shadow-[0px_0px_16px_0px_rgba(0,0,0,0.16)]">
+        <h1 class="text-3xl font-bold mb-10">Daftar Sekarang</h1>
+    
+        <% if (error) { %>
+            <div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4 border border-red-300">
+                <%= error %>
+            </div>
+        <% } %>
+    
+        <form method="POST" action="/register" class="space-y-4">
+            <!-- Username Field -->
+            <div class="relative">
+                <input 
+                    type="text" 
+                    name="username"
+                    id="username"
+                    placeholder=" "
+                    class="w-full border border-[#ADACAC] px-3 py-3 rounded-lg
+                        peer
+                        focus:ring-1
+                        focus:ring-[#40C2BA]
+                        focus:outline-none
+                        transition
+                        duration-500"
+                    required
+                >
+                <label 
+                    for="username"
+                    class="absolute left-3 top-3 text-[#ADACAC]/80 font-medium text-sm
+                        transition-all duration-300
+                        peer-placeholder-shown:text-base
+                        peer-placeholder-shown:font-medium
+                        peer-placeholder-shown:top-3
+                        peer-focus:-top-2.5 
+                        peer-focus:text-sm
+                        peer-focus:bg-white 
+                        peer-focus:px-1
+                        peer-focus:text-[#40C2BA]
+                        pointer-events-none
+                        peer-not-placeholder-shown:-top-2.5
+                        peer-not-placeholder-shown:text-sm
+                        peer-not-placeholder-shown:bg-white
+                        peer-not-placeholder-shown:px-1"
+                >
+                    Username
+                </label>
+            </div>
+            
+            <!-- Email Field -->
+            <div class="relative">
+                <input 
+                    type="email" 
+                    name="email"
+                    id="email"
+                    placeholder=" "
+                    class="w-full border border-[#ADACAC] px-3 py-3 rounded-lg
+                        peer
+                        focus:ring-1
+                        focus:ring-[#40C2BA]
+                        focus:outline-none
+                        transition
+                        duration-500"
+                    required
+                >
+                <label 
+                    for="email"
+                    class="absolute left-3 top-3 text-[#ADACAC]/80 font-medium text-sm
+                        transition-all duration-300
+                        peer-placeholder-shown:text-base
+                        peer-placeholder-shown:font-medium
+                        peer-placeholder-shown:top-3
+                        peer-focus:-top-2.5 
+                        peer-focus:text-sm
+                        peer-focus:bg-white 
+                        peer-focus:px-1
+                        peer-focus:text-[#40C2BA]
+                        pointer-events-none
+                        peer-not-placeholder-shown:-top-2.5
+                        peer-not-placeholder-shown:text-sm
+                        peer-not-placeholder-shown:bg-white
+                        peer-not-placeholder-shown:px-1"
+                >
+                    Email
+                </label>
+            </div>
+            
+            <!-- Password Field -->
+            <div class="relative">
+                <input 
+                    type="password" 
+                    name="password"
+                    id="registerPassword"
+                    placeholder=" "
+                    class="w-full border border-[#ADACAC] px-3 py-3 rounded-lg
+                        peer password-input
+                        focus:ring-1
+                        focus:ring-[#40C2BA]
+                        focus:outline-none
+                        transition
+                        duration-500 pr-10"
+                    required
+                >
+                <label 
+                    for="registerPassword"
+                    class="absolute left-3 top-3 text-[#ADACAC]/80 font-medium text-sm
+                        transition-all duration-300
+                        peer-placeholder-shown:text-base
+                        peer-placeholder-shown:font-medium
+                        peer-placeholder-shown:top-3
+                        peer-focus:-top-2.5 
+                        peer-focus:text-sm
+                        peer-focus:bg-white 
+                        peer-focus:px-1
+                        peer-focus:text-[#40C2BA]
+                        pointer-events-none
+                        peer-not-placeholder-shown:-top-2.5
+                        peer-not-placeholder-shown:text-sm
+                        peer-not-placeholder-shown:bg-white
+                        peer-not-placeholder-shown:px-1
+                        peer-[.password-visible]:-top-2.5 
+                        peer-[.password-visible]:text-sm
+                        peer-[.password-visible]:bg-white 
+                        peer-[.password-visible]:px-1"
+                >
+                    Password
+                </label>
+                <span class="absolute top-3 right-3 cursor-pointer text-gray-600"
+                    onclick="togglePassword('registerPassword', this)">👁️</span>
+            </div>
+            
+            <!-- Confirm Password Field -->
+            <div class="relative">
+                <input 
+                    type="password" 
+                    name="confirmPassword"
+                    id="registerConfirm"
+                    placeholder=" "
+                    class="w-full border border-[#ADACAC] px-3 py-3 rounded-lg
+                        peer password-input
+                        focus:ring-1
+                        focus:ring-[#40C2BA]
+                        focus:outline-none
+                        transition
+                        duration-500 pr-10"
+                    required
+                >
+                <label 
+                    for="registerConfirm"
+                    class="absolute left-3 top-3 text-[#ADACAC]/80 font-medium text-sm
+                        transition-all duration-300
+                        peer-placeholder-shown:text-base
+                        peer-placeholder-shown:font-medium
+                        peer-placeholder-shown:top-3
+                        peer-focus:-top-2.5 
+                        peer-focus:text-sm
+                        peer-focus:bg-white 
+                        peer-focus:px-1
+                        peer-focus:text-[#40C2BA]
+                        pointer-events-none
+                        peer-not-placeholder-shown:-top-2.5
+                        peer-not-placeholder-shown:text-sm
+                        peer-not-placeholder-shown:bg-white
+                        peer-not-placeholder-shown:px-1
+                        peer-[.password-visible]:-top-2.5 
+                        peer-[.password-visible]:text-sm
+                        peer-[.password-visible]:bg-white 
+                        peer-[.password-visible]:px-1"
+                >
+                    Konfirmasi Password
+                </label>
+                <span class="absolute top-3 right-3 cursor-pointer text-gray-600"
+                    onclick="togglePassword('registerConfirm', this)">👁️</span>
+            </div>
+    
+            <button type="submit"
+                class="bg-[#40C2BA] text-white font-bold p-3 mt-2 rounded-lg hover:bg-[#2C928B] transition duration-200 w-full">
+                Daftar
+            </button>
+        </form>
+    
+        <p class="mt-2 text-sm text-center">
+            Sudah punya akun? <a href="/login" class="text-[#40C2BA] font-medium hover:underline">Masuk</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    function togglePassword(id, el) {
+        const input = document.getElementById(id);
+        if (input.type === 'password') {
+            input.type = 'text';
+            el.textContent = '🙈';
+            input.classList.add('password-visible');
+        } else {
+            input.type = 'password';
+            el.textContent = '👁️';
+            input.classList.remove('password-visible');
+        }
+    }
+
+    // Untuk memastikan label tetap di atas jika input sudah terisi saat page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            if (input.value) {
+                input.nextElementSibling.classList.add('-top-2.5', 'text-sm', 'bg-white', 'px-1');
+                input.nextElementSibling.classList.remove('top-3');
+            }
+            
+            // Handle ketika form diisi (untuk browser yang tidak trigger event otomatis)
+            input.addEventListener('input', function() {
+                const label = this.nextElementSibling;
+                if (this.value) {
+                    label.classList.add('-top-2.5', 'text-sm', 'bg-white', 'px-1');
+                    label.classList.remove('top-3');
+                } else {
+                    label.classList.remove('-top-2.5', 'text-sm', 'bg-white', 'px-1');
+                    label.classList.add('top-3');
+                }
+            });
+        });
+    });
+</script>

@@ -1,0 +1,104 @@
+<%- include('partials/header') %>
+
+<% var fromDetail = typeof fromDetail !== 'undefined' ? fromDetail : false; %>
+
+    <div class="container mx-auto p-6 rounded-2xl bg-white shadow-[0px_0px_16px_0px_rgba(0,0,0,0.16)]">
+        <h1 class="text-3xl font-bold mb-12">Segmentasi Penjualan</h1>
+
+        <% if (typeof silhouetteScore !== 'undefined' && bestK) { %>
+            <div class="bg-[#EDFBFA] max-w-md w-full text-[#2C928B] border border-[#A6F2ED] rounded-xl p-4 mb-4">
+                <p class="font-bold">Hasil Evaluasi Clustering:</p>
+                <ul class="list-disc pl-6 mt-1 text-sm font-medium">
+                    <li>Jumlah cluster terbaik (k): <strong><%= bestK %></strong></li>
+                    <li>Nilai Silhouette Score: <strong><%= silhouetteScore.toFixed(2) %></strong> 
+                        <% if (silhouetteScore > 0.7) { %> (pemisahan sangat baik)
+                        <% } else if (silhouetteScore > 0.5) { %> (cukup baik)
+                        <% } else if (silhouetteScore > 0.25) { %> (pemisahan lemah)
+                        <% } else { %> (clustering kurang baik)
+                        <% } %>
+                    </li>
+                </ul>
+            </div>
+        <% } %>
+
+        <% if (message) { %>
+            <div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-16">
+                <%= message %>
+            </div>
+            <% } else if (clusters && clusters.length> 0) { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+                    <% clusters.forEach((cluster, i)=> { %>
+                        <div
+                            class="bg-white rounded-3xl shadow-[0_0_8px_0_rgba(0,0,0,0.16)] border border-gray-200">
+                            <div class="flex justify-center py-4">
+                                <span
+                                    class="inline-flex items-center px-3 py-1 font-bold space-x-2 border border-gray-300 rounded-md">
+                                    <img src="/images/Activity.png" alt="Icon Cluster" class="h-5 w-5 opacity-70">
+                                    <span class="text-[#595959]">Cluster <%= cluster.cluster %> - <%= cluster.label %>
+                                </span>
+                                </span>
+                            </div>
+                            <div class="font-semibold text-sm text-[#595959] space-y-2 px-4">
+                                <p>Jumlah Pelanggan: <%= cluster.jumlah_pelanggan %></p>
+                                <p>Portofolio Dominan: <%= cluster.portofolio_dominan %></p>
+                                <p>Rata-rata Sales: Rp <%= cluster.rata_rata_sales.toLocaleString('id-ID') %></p>
+                                <p>Tahapan Dominan:
+                                    <%= cluster.tahapan_dominan.length> 25 ? cluster.tahapan_dominan.substring(0, 25) +
+                                        '...' : cluster.tahapan_dominan %>
+                                </p>
+                                <% const pelangganStr=cluster.pelanggan.join(', '); %>
+                                <p>Pelanggan:
+                                <%= pelangganStr.length > 35 ? pelangganStr.substring(0, 35) + ' ...' : pelangganStr %>
+                                </p>
+                                <!-- <p>Strategi: <%= cluster.strategi %></p> -->
+                            </div>
+                            <div class="mt-4 border-t border-gray-300 p-4">
+                                <a href="/cluster/<%= cluster.cluster %>"
+                                    class="font-semibold text-[#595959] inline-flex items-center group hover:opacity-70 transition duration-200">
+                                    Detail
+                                    <img src="/images/Arrow - Right 2.png" alt="Icon Arrow Kanan"
+                                        class="h-4 w-4 ml-1 transition-transform duration-200 group-hover:translate-x-1">
+                                </a>
+                            </div>
+                        </div>
+                        <% }) %>
+                </div>
+
+                <% if (typeof autoSummary !== 'undefined') { %>
+                <div>
+                    <section class="mb-6 border-l-6 border-[#40C2BA] pl-3">
+                        <p class="font-bold mb-1 text-lg">Ringkasan Umum</p>
+                        <p class="font-medium text-sm text-[#595959] leading-relaxed"><%= autoSummary %></p>
+                    </section>
+
+                    <section class="border-l-6 border-[#40C2BA] pl-3">
+                        <p class="font-bold mb-1 text-lg">Kesimpulan Akhir & Rekomendasi</p>
+                        <p class="font-medium text-sm text-[#595959] leading-relaxed"><%= finalConclusion %></p>
+                    </section>
+                </div>
+                <% } %>
+
+                <% } else { %>
+                    <p>Tidak ada data yang bisa ditampilkan.</p>
+                <% } %>
+    </div>
+
+    <% if (fromDetail) { %>
+        <script>
+            // Atur state history untuk navigasi yang benar
+            history.replaceState({ isBackPage: true }, '', '/cluster');
+
+            // Handle tombol kembali
+            window.addEventListener('popstate', function (event) {
+                if (event.state?.isBackPage) {
+                    // Jika kembali dari halaman cluster ke home
+                    if (window.location.pathname === '/') {
+                        window.history.pushState(null, '', '/cluster');
+                        window.location.reload();
+                    }
+                }
+            });
+        </script>
+        <% } %>
+
+<%- include('partials/footer') %>

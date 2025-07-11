@@ -1,0 +1,49 @@
+<%- include('partials/header') %>
+
+<div class="container mx-auto p-6 rounded-2xl bg-white shadow-[0px_0px_16px_0px_rgba(0,0,0,0.16)]">
+    <h1 class="text-2xl font-bold mb-2">
+        Detail Cluster <%= clusterId %> - <%= label %>
+    </h1>
+
+    <div class="bg-gray-50 mb-6">
+        <p class="text-lg font-medium">Jumlah Pelanggan: <%= pelanggan.length %></p>
+        <p class="text-lg font-medium">Rata-rata Sales: Rp <%= (pelanggan.reduce((sum, p) => sum + (p.sales_amount || 0), 0) / pelanggan.length).toLocaleString('id-ID') %></p>
+    </div>
+
+    <% if (message) { %>
+        <div class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded">
+            <%= message %>
+        </div>
+    <% } else { %>
+        <div class="overflow-hidden rounded-xl border border-gray-300 mt-6">
+            <table class="w-full border border-collapse"">
+                <thead>
+                    <tr class="bg-[#F4F8F9]">
+                        <th class="border border-gray-300 px-3 py-2">#</th>
+                        <th class="border border-gray-300 px-3 py-2">Nama AM</th>
+                        <th class="border border-gray-300 px-3 py-2">Customer</th>
+                        <th class="border border-gray-300 px-3 py-2">Pekerjaan</th>
+                        <th class="border border-gray-300 px-3 py-2">Portofolio</th>
+                        <th class="border border-gray-300 px-3 py-2">Sales Amount</th>
+                        <th class="border border-gray-300 px-3 py-2">Stage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% pelanggan.forEach((item, index) => { %>
+                        <tr class="hover:bg-gray-50">
+                            <td class="border p-1 border-gray-300 px-3 py-2"><%= index + 1 %></td>
+                            <td class="border p-1 border-gray-300 px-3 py-2"><%= item.nama_am %></td>
+                            <td class="border p-1 border-gray-300 px-3 py-2"><%= item.customer %></td>
+                            <td class="border p-1 border-gray-300 px-3 py-2"><%= item.pekerjaan || '-' %></td>
+                            <td class="border p-1 border-gray-300 px-3 py-2 text-center"><%= item.portofolio %></td>
+                            <td class="border p-1 border-gray-300 px-3 py-2">Rp <%= item.sales_amount.toLocaleString('id-ID') %></td>
+                            <td class="border p-1 border-gray-300 px-3 py-2"><%= item.stage %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>
