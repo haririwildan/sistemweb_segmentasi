@@ -86,12 +86,17 @@ app.use('/', prospekRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
-    console.error('Error:', err.stack);
-    res.status(500).render('error', {
-        message: 'Terjadi kesalahan pada server',
-        error: process.env.NODE_ENV === 'development' ? err : {}
-    });
+    console.error(err.stack);
+    res.status(500).send("Terjadi kesalahan internal: " + err.message);
 });
+
+// app.use((err, req, res, next) => {
+//     console.error('Error:', err.stack);
+//     res.status(500).render('error', {
+//         message: 'Terjadi kesalahan pada server',
+//         error: process.env.NODE_ENV === 'development' ? err : {}
+//     });
+// });
 
 // vercel connect
 module.exports = app;
