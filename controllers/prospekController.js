@@ -43,8 +43,8 @@ exports.cluster = async (req, res) => {
         }));
 
         // 🔗 Kirim data ke Flask
-        const response = await axios.post('http://127.0.0.1:5000/cluster', { data: input });
-
+        const pythonApiUrl = process.env.PYTHON_API_URL;
+        const response = await axios.post(pythonApiUrl, { data: input });
         const { data: clusters, silhouette_score, k_terbaik } = response.data;
 
         if (!Array.isArray(clusters)) {
